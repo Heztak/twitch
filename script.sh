@@ -1,25 +1,14 @@
 #!/bin/bash
 
-# Preguntar la URL del canal de Youtube
-read -p "Ingresa la URL del canal de Youtube: " youtube_url
+# Preguntar por la URL del canal de YouTube y la clave de Twitch
+read -p "Ingrese la URL del canal de YouTube: " youtube_url
+read -p "Ingrese la clave de Twitch: " twitch_key
 
-# Extraer el ID del video en vivo
-video_id=$(curl -s $youtube_url | grep -o -m 1 'data-video-id="[a-zA-Z0-9_-]\+"' | sed -e 's/data-video-id="//g' -e 's/"//g')
+# Obtener el nombre del canal de YouTube
+channel_name=$(youtube-dl --get-filename -o '%(uploader)s' $youtube_url)
 
-# Preguntar la clave de Twitch
-read -p "Ingresa la clave de transmisión de Twitch: " twitch_key
+# Construir la imagen de Docker
+sudo docker build -t youtube-to-twitch .
 
-# Crear un nombre aleatorio para el contenedor Docker
-container_name="youtube-to-twitch-$(date +%s)"
-
-# Crear la imagen de Docker
-docker build -t youtube-to-twitch .
-
-# Ejecutar el contenedor Docker con la transmisión en vivo
-docker run -it --rm --name $container_name youtube-to-twitch "$video_id" "$twitch_key"
-
-# Abrir el navegador cada minuto
-while true; do
-  sleep 60
-  xdg-open "https://www.twitch.tv/clave_de_transmision_de_twitch"
-done
+# Ejecutar el contenedor de Docker
+sudo docker run -it --rm --name $channel_name -e YOUTUBE_URL=$youtube_url -e TWITCH_KEY=$twitch_key youtube-to-twitch
