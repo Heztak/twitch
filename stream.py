@@ -1,24 +1,21 @@
 import os
 import time
-import webbrowser
-import streamlink
+import subprocess
+import youtube_dl
 
-youtube_url = input("Ingrese la URL del canal de Youtube: ")
-twitch_key = input("Ingrese la clave de stream de Twitch: ")
+# Obtener la URL del canal de YouTube y la clave de Twitch
+youtube_url = os.environ['YOUTUBE_URL']
+twitch_key = os.environ['TWITCH_KEY']
 
+# Obtener el nombre del canal de YouTube
+channel_name = youtube_dl.YoutubeDL().extract_info(youtube_url, download=False)['uploader']
+
+# Definir el comando de FFmpeg para transmitir el video
+ffmpeg_command = f"ffmpeg -re -i $(youtube-dl -f 'best[height<=720]' -g {youtube_url}) -c:v copy -c:a aac -ar 44100 -f flv rtmp://live.twitch.tv/app/{twitch_key}"
+
+# Transmitir el video a Twitch
 while True:
-    streams = streamlink.streams(youtube_url)
-    if "best" in streams:
-        stream_url = streams["best"].url
-        break
-    else:
-        print("El canal de Youtube no está disponible en este momento. Intentando de nuevo en 60 segundos...")
-        time.sleep(60)
-
-stream_key = twitch_key.split("_")[-1]
-
-cmd = f'streamlink --hls-segment-threads 4 -O "{stream_url}" best | ffmpeg -nostdin -r 25 -i - -c:v libx264 -preset veryfast -maxrate 1984k -bufsize 3968k -g 50 -c:a aac -b:a 128k -ar 44100 -f flv "rtmp://live.twitch.tv/app/{stream_key}"'
-os.system(cmd)
-
-webbrowser.open_new_tab("http://www.twitch.tv/dashboard/live")
-time.sleep(60)
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Iniciando transmisión del canal de YouTube '{channel_name}' en Twitch")
+    subprocess.run(ffmpeg_command, shell=True)
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] La transmisión se detuvo, intentando de nuevo en 10 segundos")
+    time.sleep(10)
