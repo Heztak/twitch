@@ -1,14 +1,30 @@
 #!/bin/bash
 
-# Preguntar por la URL del canal de YouTube y la clave de Twitch
+# Preguntar la URL del canal de YouTube
 read -p "Ingrese la URL del canal de YouTube: " youtube_url
+
+# Preguntar la clave de Twitch
 read -p "Ingrese la clave de Twitch: " twitch_key
 
-# Obtener el nombre del canal de YouTube
-channel_name=$(youtube-dl --get-filename -o '%(uploader)s' $youtube_url)
+# Descargar el archivo Dockerfile
+wget https://raw.githubusercontent.com/Heztak/twitch/main/Dockerfile
+
+# Descargar el archivo stream.py
+wget https://raw.githubusercontent.com/Heztak/twitch/main/stream.py
+
+# Instalar Docker si no está instalado
+if ! command -v docker &> /dev/null
+then
+    echo "Docker no está instalado. Se instalará Docker ahora."
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
+fi
 
 # Construir la imagen de Docker
-sudo docker build -t youtube-to-twitch .
+docker build -t youtube-to-twitch .
+
+# Obtener un puerto aleatorio para mapear al puerto 8080 del contenedor
+port=$(shuf -i 8081-8180 -n 1)
 
 # Ejecutar el contenedor de Docker
-sudo docker run -it --rm --name $channel_name -e YOUTUBE_URL=$youtube_url -e TWITCH_KEY=$twitch_key youtube-to-twitch
+docker run -it --rm -p $port:8080 --name $(date +%s) youtube-to-twitch "$youtube_url" "$twitch_key"
