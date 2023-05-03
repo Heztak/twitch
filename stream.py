@@ -1,32 +1,24 @@
 import os
-import sys
 import time
+import webbrowser
 import streamlink
-import subprocess
 
-if len(sys.argv) < 3:
-    print('Usage: python stream.py <YouTube URL> <Twitch Stream Key>')
-    sys.exit(1)
+youtube_url = input("Ingrese la URL del canal de Youtube: ")
+twitch_key = input("Ingrese la clave de stream de Twitch: ")
 
-url = sys.argv[1]
-twitch_key = sys.argv[2]
+while True:
+    streams = streamlink.streams(youtube_url)
+    if "best" in streams:
+        stream_url = streams["best"].url
+        break
+    else:
+        print("El canal de Youtube no está disponible en este momento. Intentando de nuevo en 60 segundos...")
+        time.sleep(60)
 
-streams = streamlink.streams(url)
-if not streams:
-    print(f'Unable to find streams from {url}')
-    sys.exit(1)
+stream_key = twitch_key.split("_")[-1]
 
-stream = streams['best']
-print(f'Stream URL: {stream.url}')
-print(f'Starting ffmpeg process to stream to Twitch with key: {twitch_key}')
+cmd = f'streamlink --hls-segment-threads 4 -O "{stream_url}" best | ffmpeg -nostdin -r 25 -i - -c:v libx264 -preset veryfast -maxrate 1984k -bufsize 3968k -g 50 -c:a aac -b:a 128k -ar 44100 -f flv "rtmp://live.twitch.tv/app/{stream_key}"'
+os.system(cmd)
 
-cmd = (f'ffmpeg -re -i {stream.url} -c:v libx264 -preset veryfast -maxrate 3500k -bufsize 4000k -vf scale=1280x720 -r 25 -g 50 -c:a aac -b:a 128k -ar 44100 -f flv rtmp://live.twitch.tv/app/{twitch_key}').split(' ')
-p = subprocess.Popen(cmd)
-
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    print('Stopping ffmpeg process')
-    p.kill()
-    sys.exit(0)
+webbrowser.open_new_tab("http://www.twitch.tv/dashboard/live")
+time.sleep(60)
