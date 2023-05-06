@@ -1,15 +1,11 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install -y \
-    curl \
-    ffmpeg \
-    python3 \
-    python3-pip
+RUN apt-get update && \
+    apt-get install -y ffmpeg python3-pip && \
+    pip3 install streamlink
 
-RUN pip3 install --upgrade pip
-RUN pip3 install streamlink
+COPY youtube-to-twitch.sh /usr/local/bin/
 
-WORKDIR /app
-COPY test.sh /app/
+RUN chmod +x /usr/local/bin/youtube-to-twitch.sh
 
-CMD ["/bin/bash", "/app/test.sh"]
+ENTRYPOINT ["/usr/local/bin/youtube-to-twitch.sh"]
