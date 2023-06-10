@@ -11,7 +11,7 @@ Antes de comenzar, asegúrate de tener Docker instalado en tu sistema. Si no lo 
 Para instalar Docker en Ubuntu, puedes utilizar el siguiente script: 
 
 ```shell
-$ ./install_docker.sh
+./install_docker.sh
 ```
 
 ## Creación de la Imagen Docker 
@@ -19,7 +19,7 @@ $ ./install_docker.sh
 Una vez que Docker esté instalado, puedes crear la imagen Docker para este proyecto ejecutando el siguiente comando:
 
 ```shell
-$ docker build -t youtube-to-twitch .
+docker build -t youtube-to-twitch .
 ```
 
 ## Ejecución del Proyecto
@@ -27,7 +27,7 @@ $ docker build -t youtube-to-twitch .
 Finalmente, para ejecutar la imagen, utiliza el siguiente script:
 
 ```shell
-$ ./ejecutar.sh
+./ejecutar.sh
 ```
 
 **Nota**: Es recomendable ejecutar el script con privilegios de usuario root para evitar posibles problemas. Si decides no utilizar el usuario root, asegúrate de otorgar los permisos necesarios.
