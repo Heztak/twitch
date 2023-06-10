@@ -1,20 +1,27 @@
 #!/bin/bash
 
-# Check if Docker is installed and update it, or install it if it isn't
-if command -v docker &> /dev/null
-then
-    echo "Docker is already installed. Updating..."
-    sudo yum update -y docker-ce docker-ce-cli containerd.io
-else
-    echo "Docker is not installed. Installing..."
-    sudo yum install -y yum-utils
-    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    sudo yum install -y docker-ce docker-ce-cli containerd.io
+# Comprobar si el script se ejecuta como root
+if [ "$EUID" -ne 0 ]
+then 
+  echo "Por favor, ejecuta este script como superusuario (root)"
+  exit
 fi
 
-# Start and enable Docker
-sudo systemctl start docker.service
-sudo systemctl enable docker.service
+# Comprobar si Docker está instalado y actualizarlo, o instalarlo si no está presente
+if command -v docker &> /dev/null
+then
+    echo "Docker ya está instalado. Actualizando..."
+    yum update -y docker-ce docker-ce-cli containerd.io
+else
+    echo "Docker no está instalado. Instalando..."
+    yum install -y yum-utils
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum install -y docker-ce docker-ce-cli containerd.io
+fi
 
-# Add the current user to the docker group
-sudo usermod -aG docker $(whoami)
+# Iniciar y habilitar Docker
+systemctl start docker.service
+systemctl enable docker.service
+
+# Agregar el usuario actual al grupo docker
+usermod -aG docker $(whoami)
