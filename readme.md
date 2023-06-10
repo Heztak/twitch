@@ -1,12 +1,16 @@
-**Requisitos**
+## Instrucciones de instalación
 
-Tener instalado Docker, si no lo tienes ejecuta el script install_docker.sh para versiones ubuntu
-si tienes centos/redhat ejecuta install_docker_centosredhat.sh
-luego docker build -t youtube-to-twitch .
-para hacer la imagen
-finalmente ejecuta ejecutar.sh
-se recomienda usar con usuario root, ya que, asi se evitan problemas pero si no, solo otorgen los permisos necesarios.
+Antes de comenzar, asegúrate de tener Docker instalado en tu sistema. Si no lo tienes, puedes seguir los pasos correspondientes según tu distribución:
 
-**Future features**
+- Para Ubuntu, ejecuta el siguiente script:
+  ```shell
+  $ ./install_docker.sh
 
-Autodetectar si la transmisión ha dejado de funcionar y obtener automáticamente una nueva desde el mismo canal, en caso de que la transmisión haya finalizado, buscar la siguiente transmisión en vivo del mismo canal de YouTube y comenzar a copiarla y transmitirla en Twitch.
+Una vez que Docker esté instalado, puedes crear la imagen Docker ejecutando el siguiente comando:
+$ docker build -t youtube-to-twitch .
+
+Finalmente, para ejecutar la imagen, utiliza el siguiente script:
+
+$ ./ejecutar.sh
+
+Es recomendable ejecutar el script con privilegios de usuario root para evitar posibles problemas. Si decides no utilizar el usuario root, asegúrate de otorgar los permisos necesarios.
